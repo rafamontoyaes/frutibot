@@ -11,7 +11,7 @@ const PHONE_NUMBER_ID = "688467581005806";
 
 // Verificación del webhook
 app.get('/webhook', (req, res) => {
-    const verify_token = VERIFY_TOKEN;
+    const verify_token = "frutitime123";
   
     const mode = req.query['hub.mode'];
     const token = req.query['hub.verify_token'];
