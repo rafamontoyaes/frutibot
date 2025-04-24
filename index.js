@@ -6,24 +6,24 @@ const app = express();
 app.use(bodyParser.json());
 
 const VERIFY_TOKEN = "frutitime123";
-const WHATSAPP_TOKEN = "EAAJcShZB85M4BO1a3GhpyDZBVDc5QaZBuJHkDkILqiJqglYUcD1a5IglvNeZAz5zhv0vJOw13ZAk1mdxICpk4AXzZA3y1wGXmZCpkvDBJ6pKtsun9eKoI2T7hV3GXAXnnJfVyUCzZCpqotbiZBpkrKF39Qva2tXfF4dghasGGGABxurvcr3u6HJXyrenYxwRMhqOKyacGib37QGasdMwRpogyEMLZB8u935Tdb0w2gtgZDZD";
+const WHATSAPP_TOKEN = "EAAJcShZB85M4BO9k2FrpE5v0zn8q8oDSRuILr8OI3NcPscVAVxPa34va5tWTCdXIxmhxO8pq0LHTcnpuSDuEgXvltioi9vZC4OQ7Qyp2MxHlWux4nPHqEvZA0H4MZCXbB7lytVTbap3Pt9HSB3yvtZBMm3ZAKjrCJBff5AU800gsqptPRPdvUZCd2l1bwONb53S9wY1VPrD0T5AgcNZBd1s6dY8ic5X5ZCFRIHaZBF";
 const PHONE_NUMBER_ID = "688467581005806";
 
 // Verificación del webhook
-app.get("/webhook", (req, res) => {
+app.get('/webhook', (req, res) => {
     const verify_token = process.env.VERIFY_TOKEN;
-    const mode = req.query["hub.mode"];
-    const token = req.query["hub.verify_token"];
-    const challenge = req.query["hub.challenge"];
-
-    if (mode === "subscribe" && token === VERIFY_TOKEN) {
-        console.log("Webhook verificado correctamente");
-        res.status(200).send(challenge);
+  
+    const mode = req.query['hub.mode'];
+    const token = req.query['hub.verify_token'];
+    const challenge = req.query['hub.challenge'];
+  
+    if (mode === "subscribe" && token === verify_token) {
+      console.log("Webhook verificado correctamente.");
+      res.status(200).send(challenge);
     } else {
-        res.sendStatus(403);
+      res.sendStatus(403);
     }
-});
-
+  });
 // Manejo de mensajes
 app.post("/webhook", async (req, res) => {
     const body = req.body;
