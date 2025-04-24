@@ -11,6 +11,7 @@ const PHONE_NUMBER_ID = "688467581005806";
 
 // Verificación del webhook
 app.get("/webhook", (req, res) => {
+    const verify_token = process.env.VERIFY_TOKEN;
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
     const challenge = req.query["hub.challenge"];
