@@ -11,19 +11,18 @@ const PHONE_NUMBER_ID = "688467581005806";
 
 // Verificación del webhook
 app.get('/webhook', (req, res) => {
-    const verify_token = "frutitime123";
-  
     const mode = req.query['hub.mode'];
     const token = req.query['hub.verify_token'];
     const challenge = req.query['hub.challenge'];
-  
-    if (mode === "subscribe" && token === verify_token) {
-      console.log("Webhook verificado correctamente.");
-      res.status(200).send(challenge);
+
+    if (mode === "subscribe" && token === VERIFY_TOKEN) {
+        console.log("Webhook verificado correctamente.");
+        res.status(200).send(challenge);
     } else {
-      res.sendStatus(403);
+        res.sendStatus(403);
     }
-  });
+});
+
 // Manejo de mensajes
 app.post("/webhook", async (req, res) => {
     const body = req.body;
@@ -35,10 +34,10 @@ app.post("/webhook", async (req, res) => {
             const from = message.from;
             const text = message.text?.body;
 
-            console.log('Mensaje de ${from}: ${text}');
+            console.log(`Mensaje de ${from}: ${text}`);
 
             await axios.post(
-                'https://graph.facebook.com/v19.0/${PHONE_NUMBER_ID}/messages',
+                `https://graph.facebook.com/v19.0/${PHONE_NUMBER_ID}/messages`,
                 {
                     messaging_product: "whatsapp",
                     to: from,
@@ -46,7 +45,7 @@ app.post("/webhook", async (req, res) => {
                 },
                 {
                     headers: {
-                        Authorization: 'Bearer ${WHATSAPP_TOKEN}',
+                        Authorization: `Bearer ${WHATSAPP_TOKEN}`,
                         "Content-Type": "application/json",
                     },
                 }
@@ -59,7 +58,7 @@ app.post("/webhook", async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log("Servidor escuchando en el puerto", PORT);
 });
