@@ -1,65 +1,48 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const axios = require("axios");
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+
 app.use(bodyParser.json());
 
-const VERIFY_TOKEN = "frutitime123";
-const WHATSAPP_TOKEN = "EAAJcShZB85M4BO2mJ4ZB1zZBnvruAsGFRoYZCsenfBBtTkPDUQ8twnU82a2VbAgS4x6LZADS8Mtn3RtYqN9scr9gngGxGeKv7C0W4kkxV0SQcLZB6vOrBvZArcIqSU2ZATny4XTLUkFuSZAnDnQzIMTsdTHffzkNpJhC9jdrAKUoxLhwZCpWU6O7oaLMyofI7gZArN5wBBuP7MZBOxy0DaZCvSvNHPICZCxFWhoq9EiIKZC";
-const PHONE_NUMBER_ID = "688467581005806";
+app.get("/", (req, res) => {
+  res.send("Fruti Bot está activo 🍓");
+});
 
-// Verificación del webhook
-app.get('/webhook', (req, res) => {
-    const mode = req.query['hub.mode'];
-    const token = req.query['hub.verify_token'];
-    const challenge = req.query['hub.challenge'];
+app.get("/webhook", (req, res) => {
+  const VERIFY_TOKEN = "frutibot_token";
 
+  const mode = req.query["hub.mode"];
+  const token = req.query["hub.verify_token"];
+  const challenge = req.query["hub.challenge"];
+
+  if (mode && token) {
     if (mode === "subscribe" && token === VERIFY_TOKEN) {
-        console.log("Webhook verificado correctamente.");
-        res.status(200).send(challenge);
+      console.log("WEBHOOK VERIFICADO");
+      res.status(200).send(challenge);
     } else {
-        res.sendStatus(403);
+      res.sendStatus(403);
     }
+  } else {
+    res.sendStatus(400);
+  }
 });
 
-// Manejo de mensajes
-app.post("/webhook", async (req, res) => {
-    const body = req.body;
+app.post("/webhook", (req, res) => {
+  const entry = req.body.entry?.[0];
+  const changes = entry?.changes?.[0];
+  const message = changes?.value?.messages?.[0];
 
-    if (body.object) {
-        const message = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+  if (message) {
+    const from = message.from;
+    console.log("Mensaje recibido de:", from);
+  }
 
-        if (message) {
-            const from = message.from;
-            const text = message.text?.body;
-
-            console.log(`Mensaje de ${from}: ${text}`);
-            console.log('Enviando mensaje a:', from);
-
-            await axios.post(
-                `https://graph.facebook.com/v19.0/${PHONE_NUMBER_ID}/messages`,
-                {
-                    messaging_product: "whatsapp",
-                    to: from,
-                    text: { body: "Gracias por escribir a Fruti Time. ¿En qué podemos ayudarte hoy?" },
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${WHATSAPP_TOKEN}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-        }
-
-        res.sendStatus(200);
-    } else {
-        res.sendStatus(404);
-    }
+  res.sendStatus(200);
 });
 
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log("Servidor escuchando en el puerto", PORT);
+  console.log(`Fruti Bot corriendo en puerto ${PORT}`);
 });
+
