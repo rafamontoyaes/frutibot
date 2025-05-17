@@ -53,11 +53,11 @@ app.listen(PORT, () => {
     text: { body: "¡Buenos días! Gracias por escribir a Fruti Time. ¿En qué te puedo ayudar?" }
   };
 
-  fetch("https://graph.facebook.com/v17.0/YOUR_PHONE_NUMBER_ID/messages", {
+  fetch("https://graph.facebook.com/v17.0/688467581005806/messages", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer YOUR_ACCESS_TOKEN`
+      Authorization: `Bearer EAAQZCBnIEMOkBOy1d4ZCoxNwRpxsgO1HbvEv9QntbeZARvDiPPYVRamZAj1ZC70rOzcqOzOFZBoB3qujQ1PtoZCE9RJzUy4n9b3cHlTgcwyCZCdvwGsMSZAcq9tly82tCBUyMHhFJewl3CPGdbjtqJt3467lkgXk8KZBLc5GuoNUwcXkZBq1Meo14V7zlF7X8ZAL0Qp9fLwBxouKvXEqFEkd6edYFFUnawg9ZArYAeJAf`
     },
     body: JSON.stringify(responseBody)
   })
