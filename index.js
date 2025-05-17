@@ -44,5 +44,26 @@ app.post("/webhook", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Fruti Bot corriendo en puerto ${PORT}`);
+
+  if (text.toLowerCase() === "buenos dias") {
+  // Aquí enviamos la respuesta
+  const responseBody = {
+    messaging_product: "whatsapp",
+    to: from,
+    text: { body: "¡Buenos días! Gracias por escribir a Fruti Time. ¿En qué te puedo ayudar?" }
+  };
+
+  fetch("https://graph.facebook.com/v17.0/YOUR_PHONE_NUMBER_ID/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer YOUR_ACCESS_TOKEN`
+    },
+    body: JSON.stringify(responseBody)
+  })
+  .then(() => console.log("Mensaje de respuesta enviado"))
+  .catch((err) => console.error("Error enviando respuesta:", err));
+}
+
 });
 
