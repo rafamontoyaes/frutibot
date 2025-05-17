@@ -42,8 +42,14 @@ app.post("/webhook", async (req, res) => {
       const from = message.from;
       console.log(`📩 Mensaje recibido de: ${from}\nTexto: ${text}`);
 
-      // Respuesta automática
-      if (text.includes("buenos dias") || text.includes("buen día") || text.includes("buen dia")) {
+      // Respuesta automática a varias variantes
+      if (
+        text.includes("buenos dias") ||
+        text.includes("buenos días") ||
+        text.includes("buen día") ||
+        text.includes("buen dia") ||
+        text.includes("hola")
+      ) {
         await fetch(`https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`, {
           method: "POST",
           headers: {
