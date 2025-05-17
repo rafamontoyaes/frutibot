@@ -1,71 +1,75 @@
 const express = require("express");
+const bodyParser = require("body-parser");
 const fetch = require("node-fetch");
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Middleware para procesar JSON
-app.use(express.json());
+app.use(bodyParser.json());
 
-// Ruta para verificar el webhook
+const VERIFY_TOKEN = "frutibot"; // Este es el token que pusiste al configurar el webhook
+const ACCESS_TOKEN = "EAAQZCBnIEMOkBOzheOqwavFWG5fpLJUHvE9ZBMtmtqk4v8F6oiZC4YI9vKgqieiVSjflTzgfl8FCAcuk8NBZB1uJYIabzeWrJsdlrfBNLyL66L9ZCYqvXrRtExcnQeGYWU0i9XHouknubCuyVP131xtZACKae7DIj1CUUzWzB8HbsTAWDn79QuTZAAKkvi5WmZAJ5BgrLKUrtBIYcTlmwlLrWj4VfZCvptLzsUtNx";
+const PHONE_NUMBER_ID = "688467581005806";
+
+// Ruta principal
+app.get("/", (req, res) => {
+  res.send("Fruti Bot está activo 🍓🤖");
+});
+
+// Verificación del webhook
 app.get("/webhook", (req, res) => {
-  const VERIFY_TOKEN = "frutibot_token";
   const mode = req.query["hub.mode"];
   const token = req.query["hub.verify_token"];
   const challenge = req.query["hub.challenge"];
 
-  if (mode && token) {
-    if (mode === "subscribe" && token === VERIFY_TOKEN) {
-      console.log("WEBHOOK_VERIFIED");
-      res.status(200).send(challenge);
-    } else {
-      res.sendStatus(403);
-    }
+  if (mode && token && mode === "subscribe" && token === VERIFY_TOKEN) {
+    console.log("🔐 Webhook verificado");
+    res.status(200).send(challenge);
+  } else {
+    res.sendStatus(403);
   }
 });
 
-// Ruta para recibir mensajes
-app.post("/webhook", (req, res) => {
-  const entry = req.body.entry?.[0];
-  const changes = entry?.changes?.[0];
-  const value = changes?.value;
-  const messages = value?.messages;
+// Recepción de mensajes
+app.post("/webhook", async (req, res) => {
+  const body = req.body;
 
-  if (!messages) {
-    return res.sendStatus(200);
-  }
+  if (body.object) {
+    const entry = body.entry?.[0];
+    const change = entry?.changes?.[0];
+    const message = change?.value?.messages?.[0];
 
-  const message = messages[0];
-  const from = message.from;
-  const text = message.text?.body || "";
+    if (message && message.text && message.from) {
+      const text = message.text.body.toLowerCase();
+      const from = message.from;
+      console.log(`📩 Mensaje recibido de: ${from}\nTexto: ${text}`);
 
-  console.log(`Mensaje recibido de: ${from}`);
-  console.log(`Texto: ${text}`);
+      // Respuesta automática
+      if (text.includes("buenos dias") || text.includes("buen día") || text.includes("buen dia")) {
+        await fetch(`https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${ACCESS_TOKEN}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            messaging_product: "whatsapp",
+            to: from,
+            text: {
+              body: "🟢 Fruti Bot está funcionando y te acaba de responder este mensaje. ¿En qué te puedo ayudar?"
+            }
+          })
+        });
 
-  // Si el mensaje dice "Buenos dias", responde
-  if (text.toLowerCase() === "buenos dias") {
-    const responseBody = {
-      messaging_product: "whatsapp",
-      to: from,
-      text: {
-        body: "¡Buenos días! Gracias por escribir a Fruti Time. ¿En qué te puedo ayudar?"
+        console.log("✅ Respuesta enviada");
       }
-    };
+    }
 
-    fetch("https://graph.facebook.com/v17.0/688467581005806/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer EAAQZCBnIEMOkBOy1d4ZCoxNwRpxsgO1HbvEv9QntbeZARvDiPPYVRamZAj1ZC70rOzcqOzOFZBoB3qujQ1PtoZCE9RJzUy4n9b3cHlTgcwyCZCdvwGsMSZAcq9tly82tCBUyMHhFJewl3CPGdbjtqJt3467lkgXk8KZBLc5GuoNUwcXkZBq1Meo14V7zlF7X8ZAL0Qp9fLwBxouKvXEqFEkd6edYFFUnawg9ZArYAeJAf`
-      },
-      body: JSON.stringify(responseBody)
-    })
-      .then(() => console.log("✅ Respuesta enviada"))
-      .catch((err) => console.error("❌ Error al responder:", err));
+    res.sendStatus(200);
+  } else {
+    res.sendStatus(404);
   }
-
-  res.sendStatus(200);
 });
 
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor escuchando en puerto ${PORT}`);
+  console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
 });
