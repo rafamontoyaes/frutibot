@@ -59,7 +59,7 @@ app.post("/webhook", async (req, res) => {
               body: 
 `
 Para hacer tu pedido fácil y rápido, visita:  
-https://www.maspedidos.menu/frutitime/frutitime
+https://www.maspedidos.menu/frutitime/frutitime`
  
             }
           })
@@ -91,8 +91,7 @@ https://www.maspedidos.menu/frutitime/frutitime
             messaging_product: "whatsapp",
             to: from,
             text: {
-              body: "👋 Buen día *. Para hacer tu pedido fácil y rápido, visita:  
-https://www.maspedidos.menu/frutitime/frutitime"
+              body: "👋 Buen día *. Para hacer tu pedido fácil y rápido, visita: https://www.maspedidos.menu/frutitime/frutitime" 
             }
           })
         });
