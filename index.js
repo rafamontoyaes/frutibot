@@ -67,7 +67,7 @@ app.post("/webhook", async (req, res) => {
 ☕ Café  
 
 Para ver el menú completo y hacer tu pedido, visita:  
-https://dashboard.maspedidos.mx/menu/productos
+https://www.maspedidos.menu/frutitime/frutitime
 
 Escribe *pedido* para comenzar tu orden 🍽️`
             }
@@ -100,7 +100,7 @@ Escribe *pedido* para comenzar tu orden 🍽️`
             messaging_product: "whatsapp",
             to: from,
             text: {
-              body: "👋 ¡Hola! Gracias por escribir a *Fruti Time*. ¿Quieres ver el menú o hacer un pedido?"
+              body: "👋 Buen día *. ¿Quieres ver el menú o hacer un pedido?"
             }
           })
         });
