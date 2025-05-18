@@ -57,19 +57,10 @@ app.post("/webhook", async (req, res) => {
             to: from,
             text: {
               body: 
-`📋 *Menú de Fruti Time* 🍓
-
-🥤 Smoothies, Jugos, Chocomilk  
-🥗 Ensaladas, Fruta con yogurt, Escamochas  
-🥐 Croissants, Waffles  
-🥪 Sándwiches, Wraps, Molletes  
-🌯 Burritos, Quesadillas, Hamburguesas  
-☕ Café  
-
-Para ver el menú completo y hacer tu pedido, visita:  
+`
+Para hacer tu pedido fácil y rápido, visita:  
 https://www.maspedidos.menu/frutitime/frutitime
-
-Escribe *pedido* para comenzar tu orden 🍽️`
+ 
             }
           })
         });
@@ -100,7 +91,8 @@ Escribe *pedido* para comenzar tu orden 🍽️`
             messaging_product: "whatsapp",
             to: from,
             text: {
-              body: "👋 Buen día *. ¿Quieres ver el menú o hacer un pedido?"
+              body: "👋 Buen día *. Para hacer tu pedido fácil y rápido, visita:  
+https://www.maspedidos.menu/frutitime/frutitime"
             }
           })
         });
