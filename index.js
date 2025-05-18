@@ -42,45 +42,17 @@ app.post("/webhook", async (req, res) => {
       const from = message.from;
       console.log(`📩 Mensaje recibido de: ${from}\nTexto: ${text}`);
 
-      // Detectar si pide el menú
-      const quiereMenu = text.includes("menú") || text.includes("menu") || text.includes("ver el menú");
-
-      if (quiereMenu) {
-        await fetch(`https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`, {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${ACCESS_TOKEN}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            messaging_product: "whatsapp",
-            to: from,
-            text: {
-              body: 
-`
-Para hacer tu pedido fácil y rápido, visita:  
-https://www.maspedidos.menu/frutitime/frutitime`
- 
-            }
-          })
-        });
-
-        console.log("📄 Menú con enlace enviado");
-      }
-
-      // Detectar saludos o intención de hacer un pedido
-      const saludos = ["hola", "buenos días", "buenas tardes", "buen día", "buen dia"];
-      const intencionPedido = [
-        "quiero pedir", "hacer un pedido", "puedo pedir",
-        "quiero ordenar", "me puedes tomar un pedido",
-        "quiero una", "quisiera una", "quiero un", "quisiera un",
-        "quiero hacer un pedido"
+      // Frases que activan la respuesta
+      const palabrasClave = [
+        "hola", "buenos días", "buen día", "buenas tardes",
+        "quiero hacer un pedido", "quiero pedir", "hacer un pedido",
+        "puedo pedir", "quiero ordenar", "me puedes tomar un pedido",
+        "tienen servicio", "hay servicio", "servicio a domicilio"
       ];
 
-      const esSaludo = saludos.some(p => text.includes(p));
-      const esPedido = intencionPedido.some(p => text.includes(p));
+      const activarRespuesta = palabrasClave.some(frase => text.includes(frase));
 
-      if (esSaludo || esPedido) {
+      if (activarRespuesta) {
         await fetch(`https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`, {
           method: "POST",
           headers: {
@@ -91,7 +63,7 @@ https://www.maspedidos.menu/frutitime/frutitime`
             messaging_product: "whatsapp",
             to: from,
             text: {
-              body: "👋 Buen día *. Para hacer tu pedido fácil y rápido, visita: https://www.maspedidos.menu/frutitime/frutitime" 
+              body: "👋 Buen día *. Para hacer tu pedido fácil y rápido, visita: https://www.maspedidos.menu/frutitime/frutitime"
             }
           })
         });
