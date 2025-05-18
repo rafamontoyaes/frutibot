@@ -6,7 +6,7 @@ const app = express();
 app.use(bodyParser.json());
 
 const VERIFY_TOKEN = "frutibot";
-const ACCESS_TOKEN = "EAAQZCBnIEMOkBO1HD7KdN73I8tZBl1dgkEJoH2HsFYMiYZCKBoFGGObSnHZCeH1ArNfRw2fLtJsU02ZA8jzMQZCTqTY5r6jtXQZByNNQgsUnmLLXP1AlPzXi5pNsTZBNPZAIZAzGkj7WBORn6Y5FvjpVWfW6IQywRBZBbC5soDiZAE9I8oPrhvsndAOXZCIBq6AaRZC6ZALbrsjl2Y11QEo85PS8mpM7TJglbgnISbSNM8X";
+const ACCESS_TOKEN = "EAAQZCBnIEMOkBOzy1FpjiRZB6YA1ANWslADBdi7nJBHJUNZCp3h3qop49d5ZB91Rwhb33Pk7ovwSuBIxP8wQYEjgFXSQstF1la6kkiLWFmjWUdMCAlMgmDiIGvSQjb7Mxh7SpURahNPqGScMjEhEIWm6CvkRAMdLxY0xbQlkB8LS759miEYPIwNegZAeYNV4E0KPK820rIk4sLt0rnxDOUBohhsOvHkfZC0is4";
 const PHONE_NUMBER_ID = "688467581005806";
 
 // Ruta de inicio
@@ -28,6 +28,26 @@ app.get("/webhook", (req, res) => {
   }
 });
 
+// Función para enviar mensajes y loguear respuesta API
+async function sendMessage(to, message) {
+  const res = await fetch(`https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${ACCESS_TOKEN}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      messaging_product: "whatsapp",
+      to,
+      text: { body: message }
+    })
+  });
+
+  const data = await res.json();
+  console.log("Respuesta API al enviar mensaje:", data);
+  return data;
+}
+
 // Recepción de mensajes
 app.post("/webhook", async (req, res) => {
   const body = req.body;
@@ -42,33 +62,21 @@ app.post("/webhook", async (req, res) => {
       const from = message.from;
       console.log(`📩 Mensaje recibido de: ${from}\nTexto: ${text}`);
 
-      // Frases que activan la respuesta
-      const palabrasClave = [
-        "hola", "buenos días", "buen día", "buenas tardes",
+      const frasesClave = [
+        "hola", "buenos días", "buen día", "buen dia", "buenas tardes",
         "quiero hacer un pedido", "quiero pedir", "hacer un pedido",
         "puedo pedir", "quiero ordenar", "me puedes tomar un pedido",
-        "tienen servicio", "hay servicio", "servicio a domicilio"
+        "quiero una", "quisiera una", "quiero un", "quisiera un",
+        "tienen servicio"
       ];
 
-      const activarRespuesta = palabrasClave.some(frase => text.includes(frase));
+      const contieneFraseClave = frasesClave.some(frase => text.includes(frase));
 
-      if (activarRespuesta) {
-        await fetch(`https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`, {
-  method: "POST",
-  headers: {
-    "Authorization": `Bearer ${ACCESS_TOKEN}`,
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    messaging_product: "whatsapp",
-    to: from,
-    text: {
-      body: "👋 Buen día *. Para hacer tu pedido fácil y rápido, visita: https://www.maspedidos.menu/frutitime/frutitime"
-    }
-  })
-});
-console.log("✅ Respuesta enviada");
-
+      if (contieneFraseClave) {
+        const mensajeRespuesta = 
+          "👋 Buen día *. Para hacer tu pedido fácil y rápido, visita: https://www.maspedidos.menu/frutitime/frutitime";
+        await sendMessage(from, mensajeRespuesta);
+        console.log("✅ Respuesta enviada");
       }
     }
 
