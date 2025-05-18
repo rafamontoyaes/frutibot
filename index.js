@@ -5,11 +5,11 @@ const app = express();
 
 app.use(bodyParser.json());
 
-const VERIFY_TOKEN = "frutibot"; // Token para verificar webhook
+const VERIFY_TOKEN = "frutibot";
 const ACCESS_TOKEN = "EAAQZCBnIEMOkBO1HD7KdN73I8tZBl1dgkEJoH2HsFYMiYZCKBoFGGObSnHZCeH1ArNfRw2fLtJsU02ZA8jzMQZCTqTY5r6jtXQZByNNQgsUnmLLXP1AlPzXi5pNsTZBNPZAIZAzGkj7WBORn6Y5FvjpVWfW6IQywRBZBbC5soDiZAE9I8oPrhvsndAOXZCIBq6AaRZC6ZALbrsjl2Y11QEo85PS8mpM7TJglbgnISbSNM8X";
 const PHONE_NUMBER_ID = "688467581005806";
 
-// Ruta principal
+// Ruta de inicio
 app.get("/", (req, res) => {
   res.send("Fruti Bot está activo 🍓🤖");
 });
@@ -42,34 +42,35 @@ app.post("/webhook", async (req, res) => {
       const from = message.from;
       console.log(`📩 Mensaje recibido de: ${from}\nTexto: ${text}`);
 
-      const saludos = ["hola", "buenos dias", "buenos días", "buen día", "buen dia"];
-      const esSaludo = saludos.some(saludo => text.includes(saludo));
+      // Detectar saludos o intención de hacer un pedido
+      const saludos = ["hola", "buenos días", "buenas tardes", "buen día", "buen dia"];
+      const intencionPedido = [
+        "quiero pedir", "hacer un pedido", "puedo pedir",
+        "quiero ordenar", "me puedes tomar un pedido",
+        "quiero una", "quisiera una", "quiero un", "quisiera un",
+        "quiero hacer un pedido"
+      ];
 
-      if (esSaludo) {
-        try {
-          const response = await fetch(`https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`, {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${ACCESS_TOKEN}`,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              messaging_product: "whatsapp",
-              to: from,
-              text: {
-                body: "🟢 Fruti Bot está funcionando y te acaba de responder este mensaje. ¿En qué te puedo ayudar?"
-              }
-            })
-          });
+      const esSaludo = saludos.some(p => text.includes(p));
+      const esPedido = intencionPedido.some(p => text.includes(p));
 
-          if (!response.ok) {
-            console.error("❌ Error al enviar respuesta:", await response.text());
-          } else {
-            console.log("✅ Respuesta enviada");
-          }
-        } catch (error) {
-          console.error("❌ Error en fetch:", error);
-        }
+      if (esSaludo || esPedido) {
+        await fetch(`https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${ACCESS_TOKEN}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            messaging_product: "whatsapp",
+            to: from,
+            text: {
+              body: "👋 ¡Hola! Gracias por escribir a *Fruti Time*. ¿Quieres ver el menú o hacer un pedido?"
+            }
+          })
+        });
+
+        console.log("✅ Respuesta enviada");
       }
     }
 
@@ -79,7 +80,7 @@ app.post("/webhook", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
 });
