@@ -49,6 +49,7 @@ async function sendMessage(to, message) {
 }
 
 // Recepción de mensajes
+// Recepción de mensajes
 app.post("/webhook", async (req, res) => {
   const body = req.body;
 
@@ -62,21 +63,48 @@ app.post("/webhook", async (req, res) => {
       const from = message.from;
       console.log(`📩 Mensaje recibido de: ${from}\nTexto: ${text}`);
 
-      const frasesClave = [
-        "hola", "buenos días", "buen día", "buen dia", "buenas tardes",
-        "quiero hacer un pedido", "quiero pedir", "hacer un pedido",
-        "puedo pedir", "quiero ordenar", "me puedes tomar un pedido",
+      // Palabras que indican saludo o intención de pedir
+      const saludos = ["hola", "buenos días", "buenas tardes", "buen día", "buen dia"];
+      const intencionPedido = [
+        "quiero pedir", "hacer un pedido", "puedo pedir",
+        "quiero ordenar", "me puedes tomar un pedido",
         "quiero una", "quisiera una", "quiero un", "quisiera un",
-        "tienen servicio"
+        "quiero hacer un pedido", "tienen servicio"
       ];
 
-      const contieneFraseClave = frasesClave.some(frase => text.includes(frase));
+      const esSaludo = saludos.some(p => text.includes(p));
+      const esPedido = intencionPedido.some(p => text.includes(p));
 
-      if (contieneFraseClave) {
-        const mensajeRespuesta = 
-          "👋 Buen día *. Para hacer tu pedido fácil y rápido, visita: https://www.maspedidos.menu/frutitime/frutitime";
-        await sendMessage(from, mensajeRespuesta);
-        console.log("✅ Respuesta enviada");
+      if (esSaludo || esPedido) {
+        await fetch(`https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${ACCESS_TOKEN}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            messaging_product: "whatsapp",
+            to: from,
+            type: "interactive",
+            interactive: {
+              type: "button",
+              body: {
+                text: "👋 Buen día *. Para hacer tu pedido fácil y rápido, haz click en el siguiente botón:"
+              },
+              action: {
+                buttons: [
+                  {
+                    type: "url",
+                    url: "https://www.maspedidos.menu/frutitime/frutitime",
+                    title: "Abrir menú"
+                  }
+                ]
+              }
+            }
+          })
+        });
+
+        console.log("✅ Respuesta con botón enviada");
       }
     }
 
