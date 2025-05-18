@@ -54,21 +54,21 @@ app.post("/webhook", async (req, res) => {
 
       if (activarRespuesta) {
         await fetch(`https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`, {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${ACCESS_TOKEN}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            messaging_product: "whatsapp",
-            to: from,
-            text: {
-              body: "👋 Buen día *. Para hacer tu pedido fácil y rápido, visita: https://www.maspedidos.menu/frutitime/frutitime"
-            }
-          })
-        });
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${ACCESS_TOKEN}`,
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    messaging_product: "whatsapp",
+    to: from,
+    text: {
+      body: "👋 Buen día *. Para hacer tu pedido fácil y rápido, visita: https://www.maspedidos.menu/frutitime/frutitime"
+    }
+  })
+});
+console.log("✅ Respuesta enviada");
 
-        console.log("✅ Respuesta enviada");
       }
     }
 
