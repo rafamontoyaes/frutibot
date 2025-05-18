@@ -5,8 +5,8 @@ const app = express();
 
 app.use(bodyParser.json());
 
-const VERIFY_TOKEN = "frutibot"; // Este es el token que pusiste al configurar el webhook
-const ACCESS_TOKEN = "EAAQZCBnIEMOkBOzheOqwavFWG5fpLJUHvE9ZBMtmtqk4v8F6oiZC4YI9vKgqieiVSjflTzgfl8FCAcuk8NBZB1uJYIabzeWrJsdlrfBNLyL66L9ZCYqvXrRtExcnQeGYWU0i9XHouknubCuyVP131xtZACKae7DIj1CUUzWzB8HbsTAWDn79QuTZAAKkvi5WmZAJ5BgrLKUrtBIYcTlmwlLrWj4VfZCvptLzsUtNx";
+const VERIFY_TOKEN = "frutibot"; // Token para verificar webhook
+const ACCESS_TOKEN = "EAAQZCBnIEMOkBO1HD7KdN73I8tZBl1dgkEJoH2HsFYMiYZCKBoFGGObSnHZCeH1ArNfRw2fLtJsU02ZA8jzMQZCTqTY5r6jtXQZByNNQgsUnmLLXP1AlPzXi5pNsTZBNPZAIZAzGkj7WBORn6Y5FvjpVWfW6IQywRBZBbC5soDiZAE9I8oPrhvsndAOXZCIBq6AaRZC6ZALbrsjl2Y11QEo85PS8mpM7TJglbgnISbSNM8X";
 const PHONE_NUMBER_ID = "688467581005806";
 
 // Ruta principal
@@ -42,30 +42,34 @@ app.post("/webhook", async (req, res) => {
       const from = message.from;
       console.log(`📩 Mensaje recibido de: ${from}\nTexto: ${text}`);
 
-      // Respuesta automática a varias variantes
-      if (
-        text.includes("buenos dias") ||
-        text.includes("buenos días") ||
-        text.includes("buen día") ||
-        text.includes("buen dia") ||
-        text.includes("hola")
-      ) {
-        await fetch(`https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`, {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${ACCESS_TOKEN}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            messaging_product: "whatsapp",
-            to: from,
-            text: {
-              body: "🟢 Fruti Bot está funcionando y te acaba de responder este mensaje. ¿En qué te puedo ayudar?"
-            }
-          })
-        });
+      const saludos = ["hola", "buenos dias", "buenos días", "buen día", "buen dia"];
+      const esSaludo = saludos.some(saludo => text.includes(saludo));
 
-        console.log("✅ Respuesta enviada");
+      if (esSaludo) {
+        try {
+          const response = await fetch(`https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${ACCESS_TOKEN}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              messaging_product: "whatsapp",
+              to: from,
+              text: {
+                body: "🟢 Fruti Bot está funcionando y te acaba de responder este mensaje. ¿En qué te puedo ayudar?"
+              }
+            })
+          });
+
+          if (!response.ok) {
+            console.error("❌ Error al enviar respuesta:", await response.text());
+          } else {
+            console.log("✅ Respuesta enviada");
+          }
+        } catch (error) {
+          console.error("❌ Error en fetch:", error);
+        }
       }
     }
 
