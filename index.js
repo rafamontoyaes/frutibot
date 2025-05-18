@@ -42,6 +42,41 @@ app.post("/webhook", async (req, res) => {
       const from = message.from;
       console.log(`📩 Mensaje recibido de: ${from}\nTexto: ${text}`);
 
+      // Detectar si pide el menú
+      const quiereMenu = text.includes("menú") || text.includes("menu") || text.includes("ver el menú");
+
+      if (quiereMenu) {
+        await fetch(`https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${ACCESS_TOKEN}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            messaging_product: "whatsapp",
+            to: from,
+            text: {
+              body: 
+`📋 *Menú de Fruti Time* 🍓
+
+🥤 Smoothies, Jugos, Chocomilk  
+🥗 Ensaladas, Fruta con yogurt, Escamochas  
+🥐 Croissants, Waffles  
+🥪 Sándwiches, Wraps, Molletes  
+🌯 Burritos, Quesadillas, Hamburguesas  
+☕ Café  
+
+Para ver el menú completo y hacer tu pedido, visita:  
+https://dashboard.maspedidos.mx/menu/productos
+
+Escribe *pedido* para comenzar tu orden 🍽️`
+            }
+          })
+        });
+
+        console.log("📄 Menú con enlace enviado");
+      }
+
       // Detectar saludos o intención de hacer un pedido
       const saludos = ["hola", "buenos días", "buenas tardes", "buen día", "buen dia"];
       const intencionPedido = [
